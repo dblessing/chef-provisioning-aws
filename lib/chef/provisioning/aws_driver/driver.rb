@@ -417,7 +417,7 @@ EOD
               'instance_id' => instance.id
           }
           machine_spec.reference['key_name'] = bootstrap_options[:key_name] if bootstrap_options[:key_name]
-          %w(is_windows ssh_username sudo use_private_ip_for_ssh ssh_gateway).each do |key|
+          %w(is_windows ssh_username sudo use_private_ip_for_ssh ssh_gateway ready_timeout).each do |key|
             machine_spec.reference[key] = machine_options[key.to_sym] if machine_options[key.to_sym]
           end
         end
@@ -809,7 +809,7 @@ EOD
       image ||= image_for(image_spec)
       time_elapsed = 0
       sleep_time = 10
-      max_wait_time = 120
+      max_wait_time = machine_spec[:ready_timeout].to_i || 120
       if !yield(image)
         action_handler.report_progress "waiting for #{image_spec.name} (#{image.id} on #{driver_url}) to be ready ..."
         while time_elapsed < max_wait_time && !yield(image)
@@ -832,7 +832,7 @@ EOD
       instance ||= instance_for(machine_spec)
       time_elapsed = 0
       sleep_time = 10
-      max_wait_time = 120
+      max_wait_time = machine_spec[:ready_timeout].to_i || 120
       if !yield(instance)
         if action_handler.should_perform_actions
           action_handler.report_progress "waiting for #{machine_spec.name} (#{instance.id} on #{driver_url}) to be ready ..."
@@ -853,7 +853,7 @@ EOD
       instance = instance_for(machine_spec)
       time_elapsed = 0
       sleep_time = 10
-      max_wait_time = 120
+      max_wait_time = machine_spec[:ready_timeout].to_i || 120
       transport = transport_for(machine_spec, machine_options, instance)
       unless transport.available?
         if action_handler.should_perform_actions
@@ -946,7 +946,7 @@ EOD
             }
             instance.tags['Name'] = machine_spec.name
             machine_spec.reference['key_name'] = bootstrap_options[:key_name] if bootstrap_options[:key_name]
-            %w(is_windows ssh_username sudo use_private_ip_for_ssh ssh_gateway).each do |key|
+            %w(is_windows ssh_username sudo use_private_ip_for_ssh ssh_gateway ready_timeout).each do |key|
               machine_spec.reference[key] = machine_options[key.to_sym] if machine_options[key.to_sym]
             end
             action_handler.performed_action "machine #{machine_spec.name} created as #{instance.id} on #{driver_url}"
