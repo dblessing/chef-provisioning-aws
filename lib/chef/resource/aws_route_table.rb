@@ -68,6 +68,8 @@ class Chef::Resource::AwsRouteTable < Chef::Provisioning::AWSDriver::AWSResource
   #
   attribute :routes, kind_of: Hash
 
+  attribute :ignore_route_targets, kind_of: Array, default: []
+
   attribute :route_table_id, kind_of: String, aws_id_attribute: true, lazy_default: proc {
     name =~ /^rtb-[a-f0-9]{8}$/ ? name : nil
   }
